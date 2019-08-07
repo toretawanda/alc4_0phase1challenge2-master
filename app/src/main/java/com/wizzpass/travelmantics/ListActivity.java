@@ -8,9 +8,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 public class ListActivity extends AppCompatActivity {
 
@@ -43,6 +48,10 @@ public class ListActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.logout_menu:
+                signOut();
+                FirebaseUtil.detachListener();
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -67,5 +76,18 @@ public class ListActivity extends AppCompatActivity {
         rvDeals.setLayoutManager(dealsLayoutManager);
 
         FirebaseUtil.attachListener();
+    }
+
+    public void signOut(){
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d("Logout","User Logged Out");
+                        FirebaseUtil.attachListener();
+                    }
+
+                });
     }
 }

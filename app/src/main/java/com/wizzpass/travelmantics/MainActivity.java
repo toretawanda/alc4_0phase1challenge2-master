@@ -1,8 +1,10 @@
 package com.wizzpass.travelmantics;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -17,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -110,18 +113,26 @@ public class MainActivity extends AppCompatActivity {
 
     private  void saveDeal(){
 
+
+
         deal.setTitle(txtTitle.getText().toString());
         deal.setDescription(txtDescription.getText().toString());
         deal.setPrice(txtPrice.getText().toString());
         if(deal.getId()==null) {
             mDatabaseReference.push().setValue(deal);
+
+
         }
         else {
             mDatabaseReference.child(deal.getId()).setValue(deal);
+
+            }
         }
 
 
-    }
+
+
+
     private void clean(){
         txtTitle.setText("");
         txtPrice.setText("");
@@ -135,6 +146,20 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
     mDatabaseReference.child(deal.getId()).removeValue();
+        if(deal.getImageName()!= null && !deal.getImageName().isEmpty()){
+            StorageReference picRef = FirebaseUtil.mStorage.getReference().child(deal.getImageName());
+            picRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d("Delete image","Image Deleted Succesully");
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d("Delete image",e.getMessage());
+                }
+            });
+        }
 
     }
 
@@ -181,4 +206,11 @@ public class MainActivity extends AppCompatActivity {
                     .into(imageView);
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
+
 }
